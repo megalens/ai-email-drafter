@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from ai_drafter.config import Config, ServiceConfig, load_config
+from ai_drafter.config import Config, ConfigError, ServiceConfig, load_config
 
 
 class TestDefaults:
@@ -73,8 +73,8 @@ poll_interval_minutes = 2
         cfg = load_config(config_file)
 
         assert cfg.service.poll_interval_minutes == 2
-        assert cfg.llm.model == "claude-sonnet-4-6"  # default
-        assert cfg.gmail.poll_max_messages == 50  # default
+        assert cfg.llm.model == "claude-sonnet-4-6"
+        assert cfg.gmail.poll_max_messages == 50
 
     def test_unknown_keys_ignored(self, tmp_path: Path):
         toml_content = """\
@@ -97,6 +97,52 @@ foo = "bar"
     def test_none_path_returns_defaults(self):
         cfg = load_config(None)
         assert cfg.service.poll_interval_minutes == 5
+
+    def test_float_accepts_int(self, tmp_path: Path):
+        toml_content = """\
+[llm]
+daily_cost_cap_usd = 10
+"""
+        config_file = tmp_path / "config.toml"
+        config_file.write_text(toml_content)
+        cfg = load_config(config_file)
+        assert cfg.llm.daily_cost_cap_usd == 10.0
+        assert isinstance(cfg.llm.daily_cost_cap_usd, float)
+
+
+class TestConfigErrors:
+    def test_malformed_toml_raises_config_error(self, tmp_path: Path):
+        config_file = tmp_path / "bad.toml"
+        config_file.write_text("this is not valid toml [[[")
+        with pytest.raises(ConfigError, match="Failed to parse"):
+            load_config(config_file)
+
+    def test_wrong_type_raises_config_error(self, tmp_path: Path):
+        toml_content = """\
+[service]
+poll_interval_minutes = "not_a_number"
+"""
+        config_file = tmp_path / "config.toml"
+        config_file.write_text(toml_content)
+        with pytest.raises(ConfigError, match="expected int"):
+            load_config(config_file)
+
+    def test_section_not_table_raises_config_error(self, tmp_path: Path):
+        toml_content = 'service = "oops"\n'
+        config_file = tmp_path / "config.toml"
+        config_file.write_text(toml_content)
+        with pytest.raises(ConfigError, match="must be a TOML table"):
+            load_config(config_file)
+
+    def test_bool_not_accepted_as_int(self, tmp_path: Path):
+        toml_content = """\
+[service]
+poll_interval_minutes = true
+"""
+        config_file = tmp_path / "config.toml"
+        config_file.write_text(toml_content)
+        with pytest.raises(ConfigError, match="expected int"):
+            load_config(config_file)
 
 
 class TestEnvVars:
@@ -130,3 +176,16 @@ class TestConfigImmutability:
         cfg = ServiceConfig()
         with pytest.raises(AttributeError):
             cfg.poll_interval_minutes = 999
+
+
+class TestSecretsMasking:
+    def test_repr_does_not_contain_secrets(self):
+        cfg = Config(anthropic_api_key="sk-real-key-123")
+        repr_str = repr(cfg)
+        assert "sk-real-key-123" not in repr_str
+
+    def test_str_masks_secrets(self):
+        cfg = Config(anthropic_api_key="sk-real-key-123")
+        str_str = str(cfg)
+        assert "sk-real-key-123" not in str_str
+        assert "***" in str_str
