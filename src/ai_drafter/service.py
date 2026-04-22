@@ -68,19 +68,18 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     user_email = accounts[0]
-    tokens = state.get_oauth_tokens(user_email)
 
-    from google.oauth2.credentials import Credentials
+    if not config.google_oauth_client_secrets:
+        logger.error("GOOGLE_OAUTH_CLIENT_SECRETS path not set")
+        state.close()
+        return 1
 
-    creds = Credentials(
-        token=tokens.access_token,
-        refresh_token=tokens.refresh_token,
-        token_uri="https://oauth2.googleapis.com/token",
-        client_id="",
-        client_secret="",
+    token_path = Path(config.service.state_db).parent / "gmail_token.json"
+    provider = GmailProvider.from_oauth(
+        client_secrets_path=config.google_oauth_client_secrets,
+        token_path=str(token_path),
+        user_email=user_email,
     )
-
-    provider = GmailProvider(creds, user_email)
     llm = LLMClassifierDrafter(
         api_key=config.anthropic_api_key,
         model=config.llm.model,

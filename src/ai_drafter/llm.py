@@ -80,6 +80,10 @@ def _sanitize_header(value: str) -> str:
     return cleaned[:_MAX_HEADER_LEN]
 
 
+def _sanitize_body(value: str) -> str:
+    return _CONTROL_CHARS_RE.sub("", value)
+
+
 def calculate_cost(usage: anthropic.types.Usage, model: str) -> float:
     rates = MODEL_RATES.get(model, {"input": 3.0, "output": 15.0, "cache_read": 0.30})
     input_tokens = usage.input_tokens
@@ -110,17 +114,20 @@ class LLMClassifierDrafter:
         api_key: str,
         model: str = "claude-sonnet-4-6",
         user_name: str = "the account owner",
+        max_context_chars: int = 100000,
     ) -> None:
         self._client = anthropic.Anthropic(api_key=api_key)
         self._model = model
         self._user_name = user_name
+        self._max_context_chars = max_context_chars
 
     def classify_and_draft(
         self, msg: EmailMessage, context_md: str
     ) -> LLMResult:
+        truncated_context = context_md[: self._max_context_chars]
         system_prompt = _SYSTEM_TEMPLATE.format(
             user_name=self._user_name,
-            context_md=context_md,
+            context_md=truncated_context,
         )
 
         user_prompt = _USER_TEMPLATE.format(
@@ -128,7 +135,7 @@ class LLMClassifierDrafter:
             to_addr=_sanitize_header(msg.to_address),
             subject=_sanitize_header(msg.subject),
             date=_sanitize_header(msg.date),
-            body=msg.body,
+            body=_sanitize_body(msg.body),
         )
 
         response = self._client.messages.create(
