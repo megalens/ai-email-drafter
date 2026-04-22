@@ -1,0 +1,24 @@
+[Unit]
+Description=AI Email Drafter — polls Gmail, drafts replies from context.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/opt/ai-drafter/.venv/bin/ai-drafter -c /etc/ai-drafter/config.toml
+WorkingDirectory=/opt/ai-drafter
+EnvironmentFile=/etc/ai-drafter/secrets.env
+Restart=on-failure
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/ai-drafter /var/log/ai-drafter
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
