@@ -1,0 +1,19 @@
+[service]
+poll_interval_minutes = 5
+context_file = "/etc/ai-drafter/context.md"
+state_db = "/var/lib/ai-drafter/state.sqlite"
+
+[llm]
+model = "claude-sonnet-4-6"
+max_context_tokens = 25000
+daily_cost_cap_usd = 5.0
+
+[gmail]
+poll_max_messages = 50
+bootstrap_lookback_days = 1
+
+[logging]
+level = "INFO"
+file = "/var/log/ai-drafter/service.log"
+max_bytes = 10485760
+backup_count = 5
