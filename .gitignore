@@ -8,3 +8,39 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Secrets and credentials
+*.env
+secrets.env
+token*.json
+oauth_credentials.json
+*.pem
+*.key
+
+# Local state
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# User context (example file is tracked, real context is not)
+context.md
+!context.example.md
+
+# Recordings and media
+recordings/
+*.mp4
+*.cast
+*.gif
+*.wav
+*.mkv
+
+# IDE and editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
