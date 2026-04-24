@@ -175,7 +175,7 @@ This is a live build and case study. Not a polished benchmark.
 | Resource | Link |
 |---|---|
 | GitHub repo | [github.com/megalens/ai-email-drafter](https://github.com/megalens/ai-email-drafter) |
-| Build video | <!-- VIDEO_URL --> |
+| Build video | https://youtu.be/czGDhTi7Lb4 |
 | Safety model | [docs/SAFETY_MODEL.md](SAFETY_MODEL.md) |
 | MegaLens workflow | [docs/MEGALENS_WORKFLOW.md](MEGALENS_WORKFLOW.md) |
 | MegaLens | [megalens.ai](https://megalens.ai) |

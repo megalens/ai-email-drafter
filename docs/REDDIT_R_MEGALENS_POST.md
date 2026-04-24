@@ -76,7 +76,7 @@ This is a live build and case study, not a polished benchmark.
 | | |
 |---|---|
 | Repo | [github.com/megalens/ai-email-drafter](https://github.com/megalens/ai-email-drafter) |
-| Build video | <!-- VIDEO_URL --> |
+| Build video | https://youtu.be/czGDhTi7Lb4 |
 | Case study | <!-- CASE_STUDY_URL --> |
 | Safety model | In repo at `docs/SAFETY_MODEL.md` |
 | MegaLens | [megalens.ai](https://megalens.ai) |

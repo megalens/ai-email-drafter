@@ -8,7 +8,7 @@ You review every draft. You send every reply. The tool never sends anything on y
 
 | | |
 |---|---|
-| Build video | [Watch the build session](<!-- VIDEO_URL -->) |
+| Build video | [Watch the build session](https://youtu.be/czGDhTi7Lb4) |
 | Case study | [How MegaLens reviewed the build](docs/CASE_STUDY.md) |
 | Safety model | [docs/SAFETY_MODEL.md](docs/SAFETY_MODEL.md) |
 
